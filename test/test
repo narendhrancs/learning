@@ -1,0 +1,88 @@
+from itertools import permutations,count
+
+a = permutations('OSADQGRZHFBS', 4)
+#print count(a)
+for ai in a:
+    print ''.join(ai)
+
+
+def combinations(data='ABCD', r=2):
+    pool = tuple(data)
+    n = len(pool)
+    print "n:", n
+    if r > n:
+        return
+    indices = range(r)
+    print "indices:", indices
+    print tuple(indices[a] for a in reversed(indices))
+    yield tuple(pool[i] for i in indices)
+    print "i am here"
+    while True:
+        for i in reversed(range(r)):
+            print "i:", i
+            if indices[i] != i+n-r:
+             print "i+n-r:", i+n-r
+             break
+        else:
+            return
+        indices[i] += 1
+        for j in range(i+1, r):
+            indices[j] = indices[j-1]+1
+        yield tuple(pool[i] for i in indices)
+
+a = combinations('abcd', 2)
+#for ai in a:
+#    print "ai:", ai
+
+
+
+
+#cv2.imwrite('C:/Temp/person-masked.jpg', masked)           # Save
+#
+#
+# Image Background Removal using OpenCV in Python
+# import numpy as np
+# import cv2
+#
+# cv2.namedWindow(‘image’, cv2.WINDOW_NORMAL)
+#
+# #Load the Image
+# imgo = cv2.imread(‘input.jpg’)
+# height, width = imgo.shape[:2]
+#
+# #Create a mask holder
+# mask = np.zeros(imgo.shape[:2],np.uint8)
+#
+# #Grab Cut the object
+# bgdModel = np.zeros((1,65),np.float64)
+# fgdModel = np.zeros((1,65),np.float64)
+#
+# #Hard Coding the Rect… The object must lie within this rect.
+# rect = (10,10,width-30,height-30)
+# cv2.grabCut(imgo,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
+# mask = np.where((mask==2)|(mask==0),0,1).astype(‘uint8’)
+# img1 = imgo*mask[:,:,np.newaxis]
+#
+# #Get the background
+# background = imgo – img1
+#
+# #Change all pixels in the background that are not black to white
+# background[np.where((background > [0,0,0]).all(axis = 2))] = [255,255,255]
+#
+# #Add the background and the image
+# final = background + img1
+#
+# #To be done – Smoothening the edges….
+#
+# cv2.imshow(‘image’, final )
+#
+# k = cv2.waitKey(0)
+#
+# if k==27:
+# cv2.destroyAllWindows()
+
+#http://codepasta.com/site/vision/segmentation/
+#http://stackoverflow.com/questions/29313667/how-do-i-remove-the-background-from-this-kind-of-image
+
+
+

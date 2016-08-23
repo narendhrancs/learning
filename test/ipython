@@ -1,0 +1,72 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from PIL import Image\n",
+    "\n",
+    "%matplotlib inline  \n",
+    "\n",
+    "#Import an image\n",
+    "image = Image.open(\"/Users/mr.narendhrancs/Downloads/LA212B08O-Q11@12.jpg\")\n",
+    "\n",
+    "image\n",
+    "im = image.convert('L')\n",
+    "\n",
+    "im\n",
+    "array(im)\n",
+    "\n",
+    "from pylab import *\n",
+    "\n",
+    "# create a new figure\n",
+    "figure()\n",
+    "gray()\n",
+    "# show contours with origin upper left corner\n",
+    "contour(im, origin='image')\n",
+    "axis('equal')\n",
+    "axis('off')\n",
+    "\n",
+    "\n",
+    "figure()\n",
+    "\n",
+    "\n",
+    "hist(im_array.flatten(), 128)\n",
+    "\n",
+    "show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    ""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    ""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    ""
+   ]
+  }
+ ],
+ "metadata": {},
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
