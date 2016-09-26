@@ -4,16 +4,16 @@ import numpy as np
 #== Parameters =======================================================================
 BLUR = 21
 CANNY_THRESH_1 = 10
-CANNY_THRESH_2 = 200
-MASK_DILATE_ITER = 20
-MASK_ERODE_ITER = 20
-MASK_COLOR = (0.0,0.0,1.0) # In BGR format
+CANNY_THRESH_2 = 10
+MASK_DILATE_ITER = 10
+MASK_ERODE_ITER = 10
+MASK_COLOR = (0.0, 0.0,1.0) # In BGR format
 
 
 #== Processing =======================================================================
 
 #-- Read image -----------------------------------------------------------------------
-img = cv2.imread('/Users/mr.narendhrancs/Downloads/LA212B08O-Q11@7.jpg')
+img = cv2.imread('/Users/mr.narendhrancs/Downloads/LA212B08O-Q11@11.jpg')
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
 #-- Edge detection -------------------------------------------------------------------
