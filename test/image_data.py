@@ -1,10 +1,10 @@
 import pytesseract
 import numpy as np
 import sys
-import cv2
 from PIL import Image, ImageEnhance, ImageFilter, ExifTags
-from matplotlib import pyplot as plt
-
+#https://ubuntu.flowconsult.at/linux/ocr-tesseract-text-recognition-ubuntu-14-04/
+# https://pypi.python.org/pypi/pytesseract/0.1
+#
 
 def binarize_array(numpy_array, threshold):
     """Binarize a numpy array."""
@@ -16,12 +16,15 @@ def binarize_array(numpy_array, threshold):
                 numpy_array[i][j] = 0
     return numpy_array
 
-im = Image.open("/Users/mr.narendhrancs/Downloads/jj.jpg") # the second one
-image = im.rotate(270, expand=True).convert('L')
+im = Image.open("/home/nchinnappasu/learning/test/jj.jpg") # the second one
+image = im.rotate(0, expand=True).convert('L')
 
 enhancer = ImageEnhance.Contrast(image)
 text = enhancer.enhance(1.0)
 text.show()
+te = pytesseract.image_to_string(text)
+print te
+sys.exit()
 #gray = cv2.cvtColor(np.array(text), cv2.COLOR_BGR2GRAY)
 ret, thresh = cv2.threshold(np.array(text),0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
 # noise removal
@@ -32,6 +35,7 @@ texttt = Image.fromarray(sure_bg).show()
 
 te = pytesseract.image_to_string(texttt)
 print te
+sys.exit()
 dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
 ret, sure_fg = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
 sure_fg = np.uint8(sure_fg)
