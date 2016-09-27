@@ -1,6 +1,8 @@
 import pytesseract
 import numpy as np
+import pytesseract
 import sys
+import cv2
 from PIL import Image, ImageEnhance, ImageFilter, ExifTags
 #https://ubuntu.flowconsult.at/linux/ocr-tesseract-text-recognition-ubuntu-14-04/
 # https://pypi.python.org/pypi/pytesseract/0.1
@@ -16,14 +18,30 @@ def binarize_array(numpy_array, threshold):
                 numpy_array[i][j] = 0
     return numpy_array
 
-im = Image.open("/home/nchinnappasu/learning/test/jj.jpg") # the second one
-image = im.rotate(0, expand=True).convert('L')
+#im = Image.open("/home/nchinnappasu/learning/test/jj.jpg") # the second one
+im = Image.open("/home/nchinnappasu/learning/test/id.jpg").rotate(270, expand=True) # the second one
+#im = Image.open("/Users/mr.narendhrancs/Desktop/test.png")
+image = im.convert('L')
+# Let numpy do the heavy lifting for converting pixels to pure black or white
+bw = np.asarray(image).copy()
 
-enhancer = ImageEnhance.Contrast(image)
-text = enhancer.enhance(1.0)
-text.show()
-te = pytesseract.image_to_string(text)
-print te
+# Pixel range is 0...255, 256/2 = 128
+bw[bw < 128] = 0    # Black
+bw[bw >= 128] = 255 # White
+
+# Now we put it back in Pillow/PIL land
+imfile = Image.fromarray(bw)
+enhancer = ImageEnhance.Brightness(im)
+
+
+#image = im.rotate(270, expand=True).convert('L')
+for i in range(16):
+    factor = i / 4.0
+    print ("**********factor: %s ***********"%(factor))
+    text = enhancer.enhance(factor)
+    text.show()
+    te = pytesseract.image_to_string(text)
+    print te
 sys.exit()
 #gray = cv2.cvtColor(np.array(text), cv2.COLOR_BGR2GRAY)
 ret, thresh = cv2.threshold(np.array(text),0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
