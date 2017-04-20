@@ -18,8 +18,16 @@ def binarize_array(numpy_array, threshold):
                 numpy_array[i][j] = 0
     return numpy_array
 
-#im = Image.open("/home/nchinnappasu/learning/test/jj.jpg") # the second one
-im = Image.open("/home/nchinnappasu/learning/test/id.jpg").rotate(270, expand=True) # the second one
+im = Image.open("/Users/mr.narendhrancs/learning/test/jj.jpg") # the second one
+#im = Image.open("/Users/mr.narendhrancs/learning/test/LA212B08O-Q11_1_blue_bg_largeHdUrl.jpg").rotate(0, expand=True) # the second one
+
+enhancer = ImageEnhance.Sharpness(im)
+text = enhancer.enhance(100)
+text.show()
+
+sys.exit()
+
+
 #im = Image.open("/Users/mr.narendhrancs/Desktop/test.png")
 image = im.convert('L')
 # Let numpy do the heavy lifting for converting pixels to pure black or white
@@ -31,13 +39,19 @@ bw[bw >= 128] = 255 # White
 
 # Now we put it back in Pillow/PIL land
 imfile = Image.fromarray(bw)
-enhancer = ImageEnhance.Brightness(im)
+# enhancer = ImageEnhance.Sharpness(im)
+# text = enhancer.enhance(0.5)
+# text.show()
+# te = pytesseract.image_to_string(text)
+# print te
+# sys.exit()
 
 
 #image = im.rotate(270, expand=True).convert('L')
 for i in range(16):
     factor = i / 4.0
     print ("**********factor: %s ***********"%(factor))
+    enhancer = ImageEnhance.Sharpness(im)
     text = enhancer.enhance(factor)
     text.show()
     te = pytesseract.image_to_string(text)

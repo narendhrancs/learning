@@ -1,20 +1,24 @@
 import cv2
 import numpy as np
+from os import listdir
+from os.path import isfile, join
+
 
 #== Parameters =======================================================================
 BLUR = 21
 CANNY_THRESH_1 = 10
 CANNY_THRESH_2 = 10
-MASK_DILATE_ITER = 10
+MASK_DILATE_ITER = 12 # Background image color coverage
 MASK_ERODE_ITER = 10
-MASK_COLOR = (0.0, 0.0,1.0) # In BGR format
+MASK_COLOR = (0.0, 0.0, 1.0) # In BGR format
 
 
 #== Processing =======================================================================
 
 #-- Read image -----------------------------------------------------------------------
-img = cv2.imread('/Users/mr.narendhrancs/Downloads/LA212B08O-Q11@11.jpg')
-gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+img = cv2.imread('/Users/mr.narendhrancs/retrain_shoes/LA212B08O-Q11/150508100842986.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 #-- Edge detection -------------------------------------------------------------------
 edges = cv2.Canny(gray, CANNY_THRESH_1, CANNY_THRESH_2)

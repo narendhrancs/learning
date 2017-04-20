@@ -4,3 +4,8 @@ test/.DS_Store
 titanic/.DS_Store
 titanic/.idea/
 titanic/.idea/*
+.idea
+.idea/*
+.DS_Store
+*/.DS_Store
+test/*.png
