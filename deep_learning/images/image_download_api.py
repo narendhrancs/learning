@@ -8,7 +8,8 @@ import os
 from time import sleep
 from os.path import expanduser
 
-
+#1439*200
+#287800
 def download_image_to_folder(pages):
     while True:
         try:
@@ -28,7 +29,7 @@ def download_image_to_folder(pages):
                 gender = data['genders'][0]
 
                 directory = expanduser('~')
-                directory += '/zalando/{gender}'.format(gender=gender)
+                directory += '/zalando'
                 print directory
                 if not os.path.isdir(directory):
                     os.mkdir(directory)

@@ -7,11 +7,11 @@ import wget
 import time
 from Queue import Queue
 from threading import Thread
-import numpy as np
 import cv2
 from PIL import Image, ImageEnhance, ImageFilter
 import sys
 import skimage
+import numpy as np
 
 accept_languages = ['de-DE', 'da-DK', 'de-AT', 'de-CH', 'en-GB', 'es-ES', 'fi-FI',
                          'nl-BE', 'fr-FR', 'it-IT', 'nl-NL', 'no-NO', 'pl-PL', 'sv-SE']
@@ -89,10 +89,10 @@ def read_download(filename):
         print time.time()
 
         myQueue = Queue()
-        num_fetch_threads = 50
+        num_fetch_threads = 1
 
         for i in range(num_fetch_threads):
-            worker = Thread(target=noisy, args=(myQueue,))
+            worker = Thread(target=bg_change, args=(myQueue,))
             worker.setDaemon(True)
             worker.start()
 
@@ -152,52 +152,62 @@ def bg_change(cskus_from_queue):
             CANNY_THRESH_2 = 10
             MASK_DILATE_ITER = 20
             MASK_ERODE_ITER = 10
-            MASK_COLOR = (0.0, 0.0, 0.0)  # In BGR format
+            mask_color_black = (0.0, 0.0, 0.0)  # In BGR format
+            mask_color_blue = (1.0, 0.0, 0.0)  # In BGR format
+            mask_color_green = (0.0, 1.0, 0.0)  # In BGR format
+            mask_color_orange = (0.0, 0.50, 1.0)  # In BGR format
+            MASK_COLORS = [(mask_color_black, 'black'),
+                           (mask_color_blue, 'blue'),
+                           (mask_color_green, 'green'),
+                           (mask_color_orange, 'orange')]
+            for list in MASK_COLORS:
+                MASK_COLOR = list[0]
+                file = list[1]
+                # == Processing =======================================================================
 
-            # == Processing =======================================================================
+                # -- Read image -----------------------------------------------------------------------
+                img = cv2.imread(csku[0])
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-            # -- Read image -----------------------------------------------------------------------
-            img = cv2.imread(csku[0])
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                # -- Edge detection -------------------------------------------------------------------
+                edges = cv2.Canny(gray, CANNY_THRESH_1, CANNY_THRESH_2)
+                edges = cv2.dilate(edges, None)
+                edges = cv2.erode(edges, None)
 
-            # -- Edge detection -------------------------------------------------------------------
-            edges = cv2.Canny(gray, CANNY_THRESH_1, CANNY_THRESH_2)
-            edges = cv2.dilate(edges, None)
-            edges = cv2.erode(edges, None)
+                # -- Find contours in edges, sort by area ---------------------------------------------
+                contour_info = []
+                contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+                for c in contours:
+                    contour_info.append((
+                        c,
+                        cv2.isContourConvex(c),
+                        cv2.contourArea(c),
+                    ))
+                contour_info = sorted(contour_info, key=lambda c: c[2], reverse=True)
+                max_contour = contour_info[0]
 
-            # -- Find contours in edges, sort by area ---------------------------------------------
-            contour_info = []
-            contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-            for c in contours:
-                contour_info.append((
-                    c,
-                    cv2.isContourConvex(c),
-                    cv2.contourArea(c),
-                ))
-            contour_info = sorted(contour_info, key=lambda c: c[2], reverse=True)
-            max_contour = contour_info[0]
+                # -- Create empty mask, draw filled polygon on it corresponding to largest contour ----
+                # Mask is black, polygon is white
+                mask = np.zeros(edges.shape)
+                cv2.fillConvexPoly(mask, max_contour[0], (255))
 
-            # -- Create empty mask, draw filled polygon on it corresponding to largest contour ----
-            # Mask is black, polygon is white
-            mask = np.zeros(edges.shape)
-            cv2.fillConvexPoly(mask, max_contour[0], (255))
+                # -- Smooth mask, then blur it --------------------------------------------------------
+                mask = cv2.dilate(mask, None, iterations=MASK_DILATE_ITER)
+                mask = cv2.erode(mask, None, iterations=MASK_ERODE_ITER)
+                mask = cv2.GaussianBlur(mask, (BLUR, BLUR), 0)
+                mask_stack = np.dstack([mask] * 3)  # Create 3-channel alpha mask
 
-            # -- Smooth mask, then blur it --------------------------------------------------------
-            mask = cv2.dilate(mask, None, iterations=MASK_DILATE_ITER)
-            mask = cv2.erode(mask, None, iterations=MASK_ERODE_ITER)
-            mask = cv2.GaussianBlur(mask, (BLUR, BLUR), 0)
-            mask_stack = np.dstack([mask] * 3)  # Create 3-channel alpha mask
-
-            # -- Blend masked img into MASK_COLOR background --------------------------------------
-            mask_stack = mask_stack.astype('float32') / 255.0  # Use float matrices,
-            img = img.astype('float32') / 255.0  # for easy blending
-
-            masked = (mask_stack * img) + ((1 - mask_stack) * MASK_COLOR)  # Blend
-            masked = (masked * 255).astype('uint8')  # Convert back to 8-bit
-            save_path = os.path.splitext(csku[0])[0] + '_black_change.jpg'
-            print save_path
-            cv2.imwrite(save_path, masked)  # Display
-            cskus_from_queue.task_done()
+                # -- Blend masked img into MASK_COLOR background --------------------------------------
+                mask_stack = mask_stack.astype('float32') / 255.0  # Use float matrices,
+                img = img.astype('float32') / 255.0  # for easy blending
+                masked = (mask_stack * img) + ((1 - mask_stack) * MASK_COLOR)  # Blend
+                masked = (masked * 255).astype('uint8')  # Convert back to 8-bit
+                save_path = os.path.splitext(csku[0])[0][1] + '_'+file+'.jpg'
+                print save_path
+                #cv2.imshow('Image', masked)
+                sys.exit()
+                cv2.imwrite(save_path, masked)  # Display
+                cskus_from_queue.task_done()
         except Exception, e:
             print e
             cskus_from_queue.task_done()
@@ -253,18 +263,19 @@ def remove_images():
                 print e
 
 
-def noisy(cskus_from_queue, noise_typ = "gaussian"):
+def noisy(cskus_from_queue, noise_typ="gaussian"):
     while True:
         try:
             csku = cskus_from_queue.get()
             image = cv2.imread(csku[0])
             image = skimage.util.random_noise(image, mode=noise_typ, clip=True)
-            save_path = os.path.splitext(csku[0])[0] + '_gaussian.jpg'
+            save_path = os.path.splitext(csku[0])[0] + '_'+ noise_typ+'.jpg'
             cv2.imwrite(save_path, image)  # Display
             cskus_from_queue.task_done()
         except Exception, e:
             print e
             cskus_from_queue.task_done()
+
 
 if __name__ == '__main__':
     #image_crop()
