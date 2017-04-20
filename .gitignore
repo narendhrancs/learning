@@ -9,3 +9,4 @@ titanic/.idea/*
 .DS_Store
 */.DS_Store
 test/*.png
+.idea/workspace.xml
